@@ -21,5 +21,5 @@ func Connect() {
 	if err != nil {
 		log.Fatal("Failed to connect database:", err)
 	}
-	fmt.Println("✅ Database connected!")
+	fmt.Println("Database connected!")
 }

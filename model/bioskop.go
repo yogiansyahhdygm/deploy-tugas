@@ -1,4 +1,4 @@
-package models
+package model
 
 type Bioskop struct {
 	ID     uint    `json:"id" gorm:"primaryKey"`
