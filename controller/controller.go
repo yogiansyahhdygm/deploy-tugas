@@ -53,17 +53,14 @@ func UpdateBioskop(c *gin.Context) {
 		return
 	}
 
-	if updated.Nama != "" {
+	if updated.Nama == "" || updated.Lokasi == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama dan Lokasi tidak boleh kosong"})
+		return
+	}
+
+	if updated.Nama != "" || updated.Lokasi != "" || updated.Rating != 0 {
 		existing.Nama = updated.Nama
-	} else if updated.Nama == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama tidak boleh kosong"})
-	}
-	if updated.Lokasi != "" {
 		existing.Lokasi = updated.Lokasi
-	} else if updated.Nama == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Lokasi tidak boleh kosong"})
-	}
-	if updated.Rating != 0 {
 		existing.Rating = updated.Rating
 	}
 
