@@ -1,38 +1,57 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 
-	"tugas-deploy/config"
-	"tugas-deploy/controllers"
-
-	"github.com/gin-gonic/gin"
+	database "tugas-deploy/config"
+	"tugas-deploy/models"
 )
 
 func main() {
-	// Connect DB
-	config.ConnectDatabase()
+	database.Connect()
+	database.DB.AutoMigrate(&models.Bioskop{})
 
-	// Router
-	r := gin.Default()
+	http.HandleFunc("/bioskop", handleBioskop)
+	http.HandleFunc("/",
+		func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintln(w, "Selamat datang di API Bioskop!")
+		})
 
-	// Test route
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "Server is running 🚀"})
-	})
-
-	// CRUD routes
-	r.POST("/bioskop", controllers.CreateBioskop)
-	r.GET("/bioskop", controllers.GetAllBioskop)
-	r.GET("/bioskop/:id", controllers.GetBioskopByID)
-	r.PUT("/bioskop/:id", controllers.UpdateBioskop)
-	r.DELETE("/bioskop/:id", controllers.DeleteBioskop)
-
-	// Jalankan server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	r.Run(":" + port)
+	fmt.Println("🚀 Running on port", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+func handleBioskop(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	switch r.Method {
+	case "GET":
+		var bioskop []models.Bioskop
+		database.DB.Find(&bioskop)
+		json.NewEncoder(w).Encode(bioskop)
+
+	case "POST":
+		var b models.Bioskop
+		if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if b.Nama == "" || b.Lokasi == "" {
+			http.Error(w, "Nama dan Lokasi tidak boleh kosong", http.StatusBadRequest)
+			return
+		}
+		database.DB.Create(&b)
+		json.NewEncoder(w).Encode(b)
+
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
