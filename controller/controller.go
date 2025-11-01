@@ -52,9 +52,20 @@ func UpdateBioskop(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama dan Lokasi tidak boleh kosong"})
 		return
 	}
+
 	if err := c.ShouldBindJSON(&updated); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	if updated.Nama != "" {
+		existing.Nama = updated.Nama
+	}
+	if updated.Lokasi != "" {
+		existing.Lokasi = updated.Lokasi
+	}
+	if updated.Rating != 0 {
+		existing.Rating = updated.Rating
 	}
 
 	database.DB.Save(&existing)
