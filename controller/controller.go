@@ -48,23 +48,17 @@ func UpdateBioskop(c *gin.Context) {
 	}
 
 	var updated model.Bioskop
+	if updated.Nama == "" || updated.Lokasi == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama dan Lokasi tidak boleh kosong"})
+		return
+	}
 	if err := c.ShouldBindJSON(&updated); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if updated.Nama != "" {
-		existing.Nama = updated.Nama
-	}
-	if updated.Lokasi != "" {
-		existing.Lokasi = updated.Lokasi
-	}
-	if updated.Rating != 0 {
-		existing.Rating = updated.Rating
-	}
-
 	database.DB.Save(&existing)
-	c.JSON(http.StatusOK, existing)
+	c.JSON(http.StatusOK, gin.H{"message": "Data bioskop berhasil diperbarui", "data": existing})
 }
 
 func DeleteBioskop(c *gin.Context) {
