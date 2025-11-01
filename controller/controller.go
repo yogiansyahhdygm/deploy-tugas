@@ -71,9 +71,17 @@ func UpdateBioskop(c *gin.Context) {
 func DeleteBioskop(c *gin.Context) {
 	id := c.Param("id")
 	var b model.Bioskop
-	if err := database.DB.Delete(&b, id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete"})
+	result := database.DB.Delete(&b, id) // hapus berdasarkan ID
+
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Bioskop not found"})
 		return
 	}
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "Bioskop deleted successfully"})
 }
