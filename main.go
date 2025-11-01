@@ -4,23 +4,35 @@ import (
 	"net/http"
 	"os"
 
+	"tugas-deploy/config"
+	"tugas-deploy/controllers"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	router := gin.Default()
+	// Connect DB
+	config.ConnectDatabase()
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello from Gin + Railway!",
-		})
+	// Router
+	r := gin.Default()
+
+	// Test route
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "Server is running 🚀"})
 	})
 
-	// Baca PORT dari environment (Railway wajib pakai ini)
+	// CRUD routes
+	r.POST("/bioskop", controllers.CreateBioskop)
+	r.GET("/bioskop", controllers.GetAllBioskop)
+	r.GET("/bioskop/:id", controllers.GetBioskopByID)
+	r.PUT("/bioskop/:id", controllers.UpdateBioskop)
+	r.DELETE("/bioskop/:id", controllers.DeleteBioskop)
+
+	// Jalankan server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-
-	router.Run(":" + port)
+	r.Run(":" + port)
 }
