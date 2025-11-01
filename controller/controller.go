@@ -11,7 +11,7 @@ import (
 
 func GetAllBioskop(c *gin.Context) {
 	var bioskop []model.Bioskop
-	database.DB.Find(&bioskop)
+	database.DB.Order("id asc").Find(&bioskop)
 	c.JSON(http.StatusOK, bioskop)
 }
 
