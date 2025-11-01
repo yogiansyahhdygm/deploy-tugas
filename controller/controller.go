@@ -48,11 +48,6 @@ func UpdateBioskop(c *gin.Context) {
 	}
 
 	var updated model.Bioskop
-	if updated.Nama == "" || updated.Lokasi == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama dan Lokasi tidak boleh kosong"})
-		return
-	}
-
 	if err := c.ShouldBindJSON(&updated); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -60,9 +55,13 @@ func UpdateBioskop(c *gin.Context) {
 
 	if updated.Nama != "" {
 		existing.Nama = updated.Nama
+	} else if updated.Nama == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama tidak boleh kosong"})
 	}
 	if updated.Lokasi != "" {
 		existing.Lokasi = updated.Lokasi
+	} else if updated.Nama == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Lokasi tidak boleh kosong"})
 	}
 	if updated.Rating != 0 {
 		existing.Rating = updated.Rating
