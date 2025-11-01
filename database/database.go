@@ -16,10 +16,12 @@ func Connect() {
 	if dsn == "" {
 		log.Fatal("DATABASE_URL not found")
 	}
+
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect database:", err)
+		log.Fatal("Failed to connect to database:", err)
 	}
+
 	fmt.Println("Database connected!")
 }
